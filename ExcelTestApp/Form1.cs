@@ -61,6 +61,9 @@ namespace ExcelTestApp
                 });
             }
 
+            elementsList = elementsList.OrderBy(m => m.FirstString)
+                                       .ToList();
+
             _excelapp.Workbooks[1].Close();
 
             CreateTempBookForContracts(elementsList);
