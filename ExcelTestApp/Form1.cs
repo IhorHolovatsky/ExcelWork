@@ -51,39 +51,24 @@ namespace ExcelTestApp
             int thirdColumn = Convert.ToInt32(column3textBox.Text);
 
 
-            int b = 0;
 
             var elementsList = new List<MainInfoModel>();
-            foreach (Excel.Range row in excelworksheet.UsedRange.Rows)
-            {
-                b++;
-                if (b == 1) { continue;
-                    
-                }
-                String[] rowData = new String[row.Columns.Count+1];
-                for (int i = 1; i <= row.Columns.Count; i++)
-                {
-                    var v1 = row.Cells[1, i];
-                    var v2 = v1?.Value2;
-                    var v3 = v2?.ToString();
-                    rowData[i] = v3;
-                }
 
+            //i = 2, to skip headers
+            for (var i = 2; i <= excelworksheet.UsedRange.Rows.Count; i++)
+            {
+                var firstColumnValue = excelworksheet.Cells[i, firstColumn]?.Value2.ToString();
+                var secondColumnValue = excelworksheet.Cells[i, secondColumn]?.Value2.ToString();
+                var thirdColumnValue = excelworksheet.Cells[i, thirdColumn]?.Value2.ToString();
 
                 elementsList.Add(new MainInfoModel()
                 {
-                    FirstString = rowData[firstColumn],
-                    SecondString = rowData[secondColumn],
-                    FirstNumber = Convert.ToDouble(rowData[thirdColumn])
+                    FirstString = firstColumnValue,
+                    SecondString = secondColumnValue,
+                    ThirdString = thirdColumnValue
                 });
-
-                if (b == 100)
-                {
-                    break;
-                    
-                }
-
             }
+           
 
             var outputExcelappWorkbook = _excelapp.Workbooks.Add();
             //var excelappworkbook = application.Workbooks.Open(@"E:\notjob\ExcelTestApp\aa.xlsx",
