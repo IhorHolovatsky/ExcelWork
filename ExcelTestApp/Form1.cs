@@ -43,43 +43,26 @@ namespace ExcelTestApp
             //Получаем ссылку на лист 1
             var excelworksheet = (Excel.Worksheet)excelsheets.Item[Convert.ToInt32(textBoxSheet.Text)];
             
-            int firstColumn = Convert.ToInt32(column1textBox.Text);
-            int secondColumn = Convert.ToInt32(column2textBox.Text);
-            int thirdColumn = Convert.ToInt32(column3textBox.Text);
+            var firstColumn = Convert.ToInt32(column1textBox.Text);
+            var secondColumn = Convert.ToInt32(column2textBox.Text);
+            var thirdColumn = Convert.ToInt32(column3textBox.Text);
 
-
-            int b = 0;
 
             var elementsList = new List<MainInfoModel>();
-            foreach (Excel.Range row in excelworksheet.UsedRange.Rows)
-            {
-                b++;
-                if (b == 1) { continue;
-                    
-                }
-                String[] rowData = new String[row.Columns.Count+1];
-                for (int i = 1; i <= row.Columns.Count; i++)
-                {
-                    var v1 = row.Cells[1, i];
-                    var v2 = v1?.Value2;
-                    var v3 = v2?.ToString();
-                    rowData[i] = v3;
-                }
 
+            //i = 2, to skip headers
+            for (var i = 2; i <= excelworksheet.UsedRange.Rows.Count; i++)
+            {
+                var firstColumnValue = excelworksheet.Cells[i, firstColumn]?.Value2.ToString();
+                var secondColumnValue = excelworksheet.Cells[i, secondColumn]?.Value2.ToString();
+                var thirdColumnValue = excelworksheet.Cells[i, thirdColumn]?.Value2.ToString();
 
                 elementsList.Add(new MainInfoModel()
                 {
-                    FirstString = rowData[firstColumn],
-                    SecondString = rowData[secondColumn],
-                    FirstNumber = Convert.ToDouble(rowData[thirdColumn])
+                    FirstString = firstColumnValue,
+                    SecondString = secondColumnValue,
+                    ThirdString = thirdColumnValue
                 });
-
-                if (b == 100)
-                {
-                    break;
-                    
-                }
-
             }
 
             _excelapp.Workbooks[1].Close();
@@ -165,7 +148,7 @@ namespace ExcelTestApp
                 var cellLiteralC = "C" + rowIteration;
                 outputExcelWorksheet.Range[cellLiteralA, cellLiteralA].Value2 = t.FirstString;
                 outputExcelWorksheet.Range[cellLiteralB, cellLiteralB].Value2 = t.SecondString;
-                outputExcelWorksheet.Range[cellLiteralC, cellLiteralC].Value2 = t.FirstNumber;
+                outputExcelWorksheet.Range[cellLiteralC, cellLiteralC].Value2 = t.ThirdString;
             }
 
 
