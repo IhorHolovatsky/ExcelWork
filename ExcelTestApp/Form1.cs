@@ -66,6 +66,8 @@ namespace ExcelTestApp
             }
 
             elementsList = elementsList.OrderBy(m => m.FirstString)
+                                       .ThenBy(m => m.SecondString)
+                                       .ThenBy(m => m.SecondString)
                                        .ToList();
 
             _excelapp.Workbooks[1].Close();
