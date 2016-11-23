@@ -14,7 +14,9 @@ namespace ExcelTestApp
     public partial class Form1 : Form
     {
 
-        private Excel.Application excelapp;
+        private Excel.Application _excelapp;
+        private Excel.Workbooks _excelappworkbooks;
+
 
         public Form1()
         {
@@ -23,25 +25,15 @@ namespace ExcelTestApp
 
         private void button1_Click(object sender, EventArgs e)
         {
-            var sourceExcelFileName = String.Empty;
-
-            using (var selectFileDialog = new OpenFileDialog())
-            {
-                if (selectFileDialog.ShowDialog() == DialogResult.OK)
-                {
-                    sourceExcelFileName = selectFileDialog.FileName;
-                }
-            }
-            excelapp = new Excel.Application
+            
+            _excelapp = new Excel.Application
             {
                 Visible = true
             };
-
             
+            _excelappworkbooks = _excelapp.Workbooks;
 
-            var excelappworkbooks = excelapp.Workbooks;
-
-            var excelappworkbook = excelapp.Workbooks.Open(@sourceExcelFileName,
+            var excelappworkbook = _excelapp.Workbooks.Open(GetExcelPath(),
               Type.Missing, Type.Missing, Type.Missing, Type.Missing,
               Type.Missing, Type.Missing, Type.Missing, Type.Missing,
               Type.Missing, Type.Missing, Type.Missing, Type.Missing,
@@ -49,7 +41,7 @@ namespace ExcelTestApp
 
             var excelsheets = excelappworkbook.Worksheets;
             //Получаем ссылку на лист 1
-            var excelworksheet = (Excel.Worksheet)excelsheets.get_Item(Convert.ToInt32(textBoxSheet.Text));
+            var excelworksheet = (Excel.Worksheet)excelsheets.Item[Convert.ToInt32(textBoxSheet.Text)];
             //Выбираем ячейку для вывода A1/
 
 
@@ -93,7 +85,7 @@ namespace ExcelTestApp
 
             }
 
-            var outputExcelappWorkbook = excelapp.Workbooks.Add();
+            var outputExcelappWorkbook = _excelapp.Workbooks.Add();
             //var excelappworkbook = application.Workbooks.Open(@"E:\notjob\ExcelTestApp\aa.xlsx",
             //                   Type.Missing, Type.Missing, Type.Missing,
             // "WWWWW", "WWWWW", Type.Missing, Type.Missing, Type.Missing,
@@ -122,14 +114,14 @@ namespace ExcelTestApp
             //Выводим число
             thirdTitle.Value2 = "ThirdTitle";
 
-            excelappworkbooks = excelapp.Workbooks;
-            excelappworkbook = excelappworkbooks[1];
-            excelappworkbook.SaveAs(@"E:\notjob\ExcelTestApp\aa.xlsx");
-            excelapp.Quit();
+            var outexcelappworkbooks = _excelapp.Workbooks;
+            var outexcelappworkbook = outexcelappworkbooks[2];
+            outexcelappworkbook.SaveAs(@"E:\notjob\ExcelWork\aa.xlsx");
+            _excelapp.Quit();
 
             #region old
-            //excelapp.SheetsInNewWorkbook = 1;
-            //var workbookForContracts = excelapp.Workbooks.Add(Type.Missing);
+            //_excelapp.SheetsInNewWorkbook = 1;
+            //var workbookForContracts = _excelapp.Workbooks.Add(Type.Missing);
 
             //var outexcelsheets = workbookForContracts.Worksheets;
             ////Получаем ссылку на лист 1
@@ -149,7 +141,7 @@ namespace ExcelTestApp
             //firstTitle.Value2 = "ThirdTitle";
 
             //workbookForContracts.Saved = true;
-            //excelapp.DisplayAlerts = false;
+            //_excelapp.DisplayAlerts = false;
             //workbookForContracts.SaveAs(@"E:\notjob\ExcelTestApp\output1.xlsx",  //object Filename
             //   Excel.XlFileFormat.xlHtml,          //object FileFormat
             //   Type.Missing,                       //object Password 
@@ -165,7 +157,7 @@ namespace ExcelTestApp
 
             //workbookForContracts.Close();
 
-            //excelapp.Quit();
+            //_excelapp.Quit();
 
 
 
@@ -235,6 +227,21 @@ namespace ExcelTestApp
             excelappworkbook = excelappworkbooks[1];
             excelappworkbook.SaveAs(@"E:\notjob\ExcelTestApp\aa.xlsx");
             application.Quit();
+        }
+
+        private string GetExcelPath()
+        {
+            var sourceExcelFileName = String.Empty;
+
+            using (var selectFileDialog = new OpenFileDialog())
+            {
+                if (selectFileDialog.ShowDialog() == DialogResult.OK)
+                {
+                    sourceExcelFileName = selectFileDialog.FileName;
+                }
+            }
+
+            return sourceExcelFileName;
         }
     }
 }
