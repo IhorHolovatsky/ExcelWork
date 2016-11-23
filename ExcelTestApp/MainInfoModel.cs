@@ -10,6 +10,6 @@ namespace ExcelTestApp
     {
         public string FirstString { get; set; }
         public string SecondString { get; set; }
-        public string ThirdString { get; set; }
+        public double FirstNumber { get; set; }
     }
 }
