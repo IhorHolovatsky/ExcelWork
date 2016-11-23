@@ -15,9 +15,7 @@ namespace ExcelTestApp
     {
 
         private Excel.Application _excelapp;
-        private Excel.Workbooks _excelappworkbooks;
-
-
+        
         public Form1()
         {
             InitializeComponent();
@@ -30,8 +28,6 @@ namespace ExcelTestApp
             {
                 Visible = false
             };
-            
-            _excelappworkbooks = _excelapp.Workbooks;
 
             var excelappworkbook = _excelapp.Workbooks.Open(GetExcelPath(),
               Type.Missing, Type.Missing, Type.Missing, Type.Missing,
@@ -71,36 +67,6 @@ namespace ExcelTestApp
            
            // _excelapp.Quit();
         }
-
-        private void button2_Click(object sender, EventArgs e)
-        {
-            var application = new Excel.Application {Visible = true};
-            //Получаем набор ссылок на объекты Workbook
-            var excelappworkbooks = application.Workbooks;
-            //Открываем книгу и получаем на нее ссылку
-            var excelappworkbook = application.Workbooks.Add();
-            //var excelappworkbook = application.Workbooks.Open(@"E:\notjob\ExcelTestApp\aa.xlsx",
-            //                   Type.Missing, Type.Missing, Type.Missing,
-            // "WWWWW", "WWWWW", Type.Missing, Type.Missing, Type.Missing,
-            //  Type.Missing, Type.Missing, Type.Missing, Type.Missing,
-            //  Type.Missing, Type.Missing);
-            //Если бы мы открыли несколько книг, то получили ссылку так
-            //excelappworkbook=excelappworkbooks[1];
-            //Получаем массив ссылок на листы выбранной книги
-            var excelsheets = excelappworkbook.Worksheets;
-            //Получаем ссылку на лист 1
-            var excelworksheet = (Excel.Worksheet)excelsheets.get_Item(1);
-            //Выбираем ячейку для вывода A1
-            var excelcells = excelworksheet.get_Range("A1", "A1");
-            //Выводим число
-            excelcells.Value2 = 10.5;
-
-            excelappworkbooks = application.Workbooks;
-            excelappworkbook = excelappworkbooks[1];
-            excelappworkbook.SaveAs(@"E:\notjob\ExcelTestApp\aa.xlsx");
-            application.Quit();
-        }
-
         private string GetExcelPath()
         {
             var sourceExcelFileName = String.Empty;
@@ -168,5 +134,6 @@ namespace ExcelTestApp
             outexcelappworkbook.SaveAs(outputPath + "\\tempContracts.xlsx");
             _excelapp.Visible = true;
         }
+
     }
 }
