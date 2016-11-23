@@ -1,0 +1,10 @@
+E:\notjob\ExcelTestApp\ExcelTestApp\ExcelTestApp\bin\Debug\ExcelTestApp.exe.config
+E:\notjob\ExcelTestApp\ExcelTestApp\ExcelTestApp\bin\Debug\ExcelTestApp.exe
+E:\notjob\ExcelTestApp\ExcelTestApp\ExcelTestApp\bin\Debug\ExcelTestApp.pdb
+E:\notjob\ExcelTestApp\ExcelTestApp\ExcelTestApp\obj\Debug\ExcelTestApp.csprojResolveAssemblyReference.cache
+E:\notjob\ExcelTestApp\ExcelTestApp\ExcelTestApp\obj\Debug\ExcelTestApp.csproj.ResolveComReference.cache
+E:\notjob\ExcelTestApp\ExcelTestApp\ExcelTestApp\obj\Debug\ExcelTestApp.Form1.resources
+E:\notjob\ExcelTestApp\ExcelTestApp\ExcelTestApp\obj\Debug\ExcelTestApp.Properties.Resources.resources
+E:\notjob\ExcelTestApp\ExcelTestApp\ExcelTestApp\obj\Debug\ExcelTestApp.csproj.GenerateResource.Cache
+E:\notjob\ExcelTestApp\ExcelTestApp\ExcelTestApp\obj\Debug\ExcelTestApp.exe
+E:\notjob\ExcelTestApp\ExcelTestApp\ExcelTestApp\obj\Debug\ExcelTestApp.pdb
