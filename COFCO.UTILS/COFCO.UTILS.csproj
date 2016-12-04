@@ -61,10 +61,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ExcelUtils\ExcelCellUtils.cs" />
+    <Compile Include="ExcelUtils\ExcelRowUtils.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\COFCO.SharedEntities\COFCO.SharedEntities.csproj">
+      <Project>{F201594D-60F8-40A2-89E1-F8809A7A51C7}</Project>
+      <Name>COFCO.SharedEntities</Name>
+    </ProjectReference>
+  </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>

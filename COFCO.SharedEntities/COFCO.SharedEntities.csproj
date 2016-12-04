@@ -41,6 +41,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Constants\FileContants.cs" />
+    <Compile Include="Models\CofcoRowModel.cs" />
     <Compile Include="Models\ExcelInputInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
