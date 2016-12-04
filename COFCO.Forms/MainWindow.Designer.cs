@@ -1,4 +1,4 @@
-﻿namespace ExcelTestApp
+﻿namespace COFCO.Forms
 {
     partial class MainWindow
     {

@@ -7,8 +7,8 @@
     <ProjectGuid>{DCECC9B3-B087-40F5-84C3-5A54AF9006ED}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ExcelTestApp</RootNamespace>
-    <AssemblyName>ExcelTestApp</AssemblyName>
+    <RootNamespace>COFCO.Forms</RootNamespace>
+    <AssemblyName>COFCO.Forms</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -83,6 +83,7 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
     <None Include="Configs\appSettingsPROD.config" />
     <None Include="Configs\appSettingsDEV.config" />
