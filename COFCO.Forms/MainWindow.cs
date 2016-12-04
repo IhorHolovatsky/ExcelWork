@@ -1,4 +1,6 @@
-﻿using System.Windows.Forms;
+﻿using System;
+using System.Collections.Generic;
+using System.Windows.Forms;
 using COFCO.Forms.Helpers;
 using COFCO.SharedEntities.Models;
 using COFCO.UTILS.Extensions;
@@ -9,6 +11,8 @@ namespace COFCO.Forms
     {
         public static ExcelInputInfo ExcelInputInfoModel = new ExcelInputInfo();
 
+        public static List<int> SupplierContractsOutputList = new List<int>();
+
         public MainWindow()
         {
             InitializeComponent();
@@ -18,17 +22,25 @@ namespace COFCO.Forms
         private void btnCreateTempExcel_Click(object sender, System.EventArgs e)
         {
             //ToDo: validation
+            try
+            {
+                ExcelInputInfoModel.Port = tbPort.Text.ParseToInt().Value;
+                ExcelInputInfoModel.Supplier = tbSupplier.Text.ParseToInt().Value;
+                ExcelInputInfoModel.Product = tbProduct.Text.ParseToInt().Value;
+                ExcelInputInfoModel.Quantity = tbQuantity.Text.ParseToInt().Value;
+                ExcelInputInfoModel.Date = tbDate.Text.ParseToInt().Value;
+                ExcelInputInfoModel.VehicleNumber = tbVehicleNumber.Text.ParseToInt().Value;
+                ExcelInputInfoModel.TTNNumber = tbTTNNumber.Text.ParseToInt().Value;
+                ExcelInputInfoModel.Contract = tbContact.Text.ParseToInt().Value;
+                ExcelInputInfoModel.SheetNumber = tbSheetNumber.Text.ParseToInt().Value;
+                ExcelInputInfoModel.StartRowNumber = tbStartRowNumber.Text.ParseToInt().Value;
+            }
+            catch (Exception ex)
+            {
+                ShowMessageBoxWithError();
+            }
 
-            ExcelInputInfoModel.Port = tbPort.Text.ParseToInt();
-            ExcelInputInfoModel.Supplier = tbSupplier.Text.ParseToInt();
-            ExcelInputInfoModel.Product = tbProduct.Text.ParseToInt();
-            ExcelInputInfoModel.Quantity = tbQuantity.Text.ParseToInt();
-            ExcelInputInfoModel.Date = tbProduct.Text.ParseToInt();
-            ExcelInputInfoModel.VehicleNumber = tbProduct.Text.ParseToInt();
-            ExcelInputInfoModel.TTNNumber = tbProduct.Text.ParseToInt();
-            ExcelInputInfoModel.Contract = tbProduct.Text.ParseToInt();
-            ExcelInputInfoModel.SheetNumber = tbProduct.Text.ParseToInt().Value;
-            ExcelInputInfoModel.StartRowNumber = tbProduct.Text.ParseToInt().Value;
+
         }
 
         private void btnCreateTemplates_Click(object sender, System.EventArgs e)
@@ -97,7 +109,10 @@ namespace COFCO.Forms
         }
         #endregion
 
-
+        private void ShowMessageBoxWithError()
+        {
+            MessageBox.Show(this, "Перевірте правильність вводу. Всі колонки повинні бути заповнені та не має бути продубльованих рядків.");
+        }
 
     }
 }
