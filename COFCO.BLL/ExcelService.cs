@@ -18,6 +18,8 @@ namespace COFCO.BLL
 {
     public class ExcelService
     {
+        private static XSSFWorkbook inputExcel { get; set; }
+
         /// <summary>
         /// 
         /// </summary>
@@ -38,7 +40,7 @@ namespace COFCO.BLL
             {
                 #region Logic for XLSX
 
-                XSSFWorkbook inputExcel;
+                
                 XSSFWorkbook outputTempExcel;
 
 
@@ -126,6 +128,16 @@ namespace COFCO.BLL
             return totalSumRowIndexes;
         }
 
+        public void SaveTemplatesByDate(ExcelInputInfo excelInputInfo)
+        {
+            
+        }
+
+        public void SaveTemplatesBySupplier(ExcelInputInfo excelInputInfo)
+        {
+            
+        }
+
         #region private methods
         private XSSFWorkbook CreateEmptyTempExcel()
         {
@@ -187,13 +199,14 @@ namespace COFCO.BLL
 
             supplierSum = 0;
             rowNumber++;
-            totalSumRowIndexes.Add(rowNumber);
-
+            
             var summaryRow = outputSheet.CreateRow(rowNumber);
 
             summaryRow.CreateCell(0)
                       .SetCellValue("Сума по контракту:");
             rowNumber++;
+
+            totalSumRowIndexes.Add(rowNumber);
         }
         #endregion
     }

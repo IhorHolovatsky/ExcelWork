@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using COFCO.BLL;
 using COFCO.Forms.Helpers;
+using COFCO.SharedEntities.Constants;
 using COFCO.SharedEntities.Models;
 using COFCO.UTILS.Extensions;
 using Excel = Microsoft.Office.Interop.Excel;
@@ -14,8 +16,7 @@ namespace COFCO.Forms
     {
         public static ExcelInputInfo ExcelInputInfoModel = new ExcelInputInfo();
 
-        public static List<int> SupplierContractsOutputList = new List<int>();
-        private readonly Dictionary<string, ContractRowModel> _contractsDictionary = new Dictionary<string, ContractRowModel>();
+        public static List<int> SupplierContractsOutputList;
 
         public MainWindow()
         {
@@ -28,42 +29,38 @@ namespace COFCO.Forms
             //ToDo: validation
             try
             {
-                ExcelInputInfoModel.Port = tbPort.Text.ParseToInt().Value;
-                ExcelInputInfoModel.Supplier = tbSupplier.Text.ParseToInt().Value;
-                ExcelInputInfoModel.Product = tbProduct.Text.ParseToInt().Value;
-                ExcelInputInfoModel.Quantity = tbQuantity.Text.ParseToInt().Value;
-                ExcelInputInfoModel.Date = tbDate.Text.ParseToInt().Value;
-                ExcelInputInfoModel.VehicleNumber = tbVehicleNumber.Text.ParseToInt().Value;
-                ExcelInputInfoModel.TTNNumber = tbTTNNumber.Text.ParseToInt().Value;
-                ExcelInputInfoModel.Contract = tbContact.Text.ParseToInt().Value;
-                ExcelInputInfoModel.SheetNumber = tbSheetNumber.Text.ParseToInt().Value;
-                ExcelInputInfoModel.StartRowNumber = tbStartRowNumber.Text.ParseToInt().Value;
+                ExcelInputInfoModel.Port = tbPort.Text.ParseToInt().Value + 1;
+                ExcelInputInfoModel.Supplier = tbSupplier.Text.ParseToInt().Value + 1;
+                ExcelInputInfoModel.Product = tbProduct.Text.ParseToInt().Value + 1;
+                ExcelInputInfoModel.Quantity = tbQuantity.Text.ParseToInt().Value + 1;
+                ExcelInputInfoModel.Date = tbDate.Text.ParseToInt().Value + 1;
+                ExcelInputInfoModel.VehicleNumber = tbVehicleNumber.Text.ParseToInt().Value + 1;
+                ExcelInputInfoModel.TTNNumber = tbTTNNumber.Text.ParseToInt().Value + 1;
+                ExcelInputInfoModel.Contract = tbContact.Text.ParseToInt().Value + 1;
+                ExcelInputInfoModel.SheetNumber = tbSheetNumber.Text.ParseToInt().Value + 1;
+                ExcelInputInfoModel.StartRowNumber = tbStartRowNumber.Text.ParseToInt().Value + 1;
             }
             catch (Exception ex)
             {
                 ShowMessageBoxWithError();
                 return;
             }
-            
 
-            //test
-            SupplierContractsOutputList.Add(6);
-            SupplierContractsOutputList.Add(11);
-            SupplierContractsOutputList.Add(16);
-
+            SupplierContractsOutputList = new ExcelService().CreateTempExcelFile(ExcelInputInfoModel);
+          
             var excelapp = new Excel.Application
             {
                 Visible = true
             };
 
-            var excelappworkbook = excelapp.Workbooks.Open(ExcelInputInfoModel.InputFilePath,
+            var excelappworkbook = excelapp.Workbooks.Open(Path.Combine(ExcelInputInfoModel.OutputTempFolderPath,FileContants.TEMP_EXCEL_FILE_NAME),
               Type.Missing, Type.Missing, Type.Missing, Type.Missing,
               Type.Missing, Type.Missing, Type.Missing, Type.Missing,
               Type.Missing, Type.Missing, Type.Missing, Type.Missing,
               Type.Missing, Type.Missing);
 
             var excelsheets = excelappworkbook.Worksheets;
-            var excelworksheet = (Excel.Worksheet)excelsheets.Item[ExcelInputInfoModel.SheetNumber];
+            var excelworksheet = (Excel.Worksheet)excelsheets.Item[1];
 
             excelworksheet.Change += target =>
             {
@@ -82,11 +79,11 @@ namespace COFCO.Forms
 
                     for (int i = lastIterationRowNumber + 1; i < supplierRowNumber - 1; i++)
                     {
-                        var contractCell = excelworksheet.Cells[i, ExcelInputInfoModel.Contract+1];
+                        var contractCell = excelworksheet.Cells[i, 9];
                         var contractRange = excelworksheet.Range[contractCell, contractCell];
                         var contractValue = contractRange.Value2?.ToString();
 
-                        var quantityCell = excelworksheet.Cells[i, ExcelInputInfoModel.Quantity];
+                        var quantityCell = excelworksheet.Cells[i, 4];
                         var quantityRange = excelworksheet.Range[quantityCell, quantityCell];
                         var quantityValue = Convert.ToDouble(quantityRange.Value2);
 
