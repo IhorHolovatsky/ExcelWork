@@ -19,14 +19,14 @@ namespace COFCO.SharedEntities.Models
         #endregion
 
         #region Column Indexes
-        public int? Port { get; set; }
-        public int? Supplier { get; set; }
-        public int? Product { get; set; }
-        public int? Quantity { get; set; }
-        public int? Date { get; set; }
-        public int? VehicleNumber { get; set; }
-        public int? TTNNumber { get; set; }
-        public int? Contract { get; set; }
+        public int Port { get; set; }
+        public int Supplier { get; set; }
+        public int Product { get; set; }
+        public int Quantity { get; set; }
+        public int Date { get; set; }
+        public int VehicleNumber { get; set; }
+        public int TTNNumber { get; set; }
+        public int Contract { get; set; }
         #endregion
 
         public int SheetNumber { get; set; }

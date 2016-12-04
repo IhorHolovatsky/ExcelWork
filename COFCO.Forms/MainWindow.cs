@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
+using COFCO.BLL;
 using COFCO.Forms.Helpers;
 using COFCO.SharedEntities.Models;
 using COFCO.UTILS.Extensions;
@@ -38,8 +39,10 @@ namespace COFCO.Forms
             catch (Exception ex)
             {
                 ShowMessageBoxWithError();
+                return;
             }
 
+            SupplierContractsOutputList = new ExcelService().CreateTempExcelFile(ExcelInputInfoModel);
 
         }
 
