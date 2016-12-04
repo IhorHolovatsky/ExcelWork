@@ -40,6 +40,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Constants\ExcelConstants.cs" />
     <Compile Include="Constants\FileContants.cs" />
     <Compile Include="Models\CofcoRowModel.cs" />
     <Compile Include="Models\ExcelInputInfo.cs" />
