@@ -8,6 +8,7 @@ namespace COFCO.SharedEntities.Models
 {
     public class CofcoRowModel
     {
+        public int Id { get; set; }
         public string Port { get; set; }
         public string Supplier { get; set; }
         public string Product { get; set; }

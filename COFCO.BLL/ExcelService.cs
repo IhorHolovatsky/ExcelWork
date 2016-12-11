@@ -40,7 +40,7 @@ namespace COFCO.BLL
             {
                 #region Logic for XLSX
 
-                
+
                 XSSFWorkbook outputTempExcel;
 
 
@@ -74,6 +74,11 @@ namespace COFCO.BLL
                 {
                     var inputRow = inputSheet.GetRow(rowIndex);
 
+                    //set hidden Column for ID
+                    inputRow.CreateCell(ExcelConstants.HIDDEN_ID_COLUMN_INDEX, CellType.Numeric)
+                            .SetCellValue(rowIndex);
+                    inputSheet.SetColumnHidden(ExcelConstants.HIDDEN_ID_COLUMN_INDEX, true);
+
                     dataList.Add(ExcelRowUtils.CopyRow(inputRow, excelInputInfo));
                 }
 
@@ -103,7 +108,7 @@ namespace COFCO.BLL
                     {
                         supplierSum += quantity.Value;
                     }
-                    
+
                     previousSupplier = cofcoData.Supplier;
                     i++;
                 }
@@ -130,12 +135,12 @@ namespace COFCO.BLL
 
         public void SaveTemplatesByDate(ExcelInputInfo excelInputInfo)
         {
-            
+
         }
 
         public void SaveTemplatesBySupplier(ExcelInputInfo excelInputInfo)
         {
-            
+
         }
 
         #region private methods
@@ -199,7 +204,7 @@ namespace COFCO.BLL
 
             supplierSum = 0;
             rowNumber++;
-            
+
             var summaryRow = outputSheet.CreateRow(rowNumber);
 
             summaryRow.CreateCell(0)
@@ -208,6 +213,23 @@ namespace COFCO.BLL
 
             totalSumRowIndexes.Add(rowNumber);
         }
+
+        private List<IRow> GetPrimaryInputRows(XSSFWorkbook inputExcel, ExcelInputInfo excelInputInfo)
+        {
+            var returnValue = new List<IRow>();
+
+            var sheet = inputExcel.GetSheetAt(excelInputInfo.SheetNumber);
+
+            for (var i = excelInputInfo.StartRowNumber; i < sheet.LastRowNum; i++)
+            {
+                returnValue.Add(sheet.GetRow(i));
+            }
+
+
+            return returnValue;
+        }
+
+
         #endregion
     }
 }

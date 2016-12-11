@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using COFCO.SharedEntities.Constants;
 using COFCO.SharedEntities.Models;
 using NPOI.SS.UserModel;
 
@@ -25,6 +26,9 @@ namespace COFCO.UTILS.ExcelUtils
 
         public static CofcoRowModel CopyRow(IRow inputRow, ExcelInputInfo inputInfo)
         {
+            int idValue;
+            var idColumnValue = inputRow.GetCell(ExcelConstants.HIDDEN_ID_COLUMN_INDEX).GetCellValue();
+            
             var cofcoModel = new CofcoRowModel
             {
                 Port = inputRow.GetCell(inputInfo.Port).GetCellValue(),
@@ -36,21 +40,26 @@ namespace COFCO.UTILS.ExcelUtils
                 TTNNumber = inputRow.GetCell(inputInfo.TTNNumber).GetCellValue(),
                 Contract = inputRow.GetCell(inputInfo.Contract).GetCellValue()
             };
-            
+
+            if (int.TryParse(idColumnValue, out idValue))
+            {
+                cofcoModel.Id = idValue;
+            }
+
             return cofcoModel;
         }
 
-        public static void WriteRow(IRow outputRow, CofcoRowModel excelInputInfo)
+        public static void WriteRow(IRow outputRow, CofcoRowModel rowModel)
         {
             outputRow.CreateCell(0, CellType.String)
-                     .SetCellValue(excelInputInfo.Port);
+                     .SetCellValue(rowModel.Port);
             outputRow.CreateCell(1, CellType.String)
-                     .SetCellValue(excelInputInfo.Supplier);
+                     .SetCellValue(rowModel.Supplier);
             outputRow.CreateCell(2, CellType.String)
-                     .SetCellValue(excelInputInfo.Product);
+                     .SetCellValue(rowModel.Product);
 
             int quantity;
-            if (int.TryParse(excelInputInfo.Quantity, out quantity))
+            if (int.TryParse(rowModel.Quantity, out quantity))
             {
                 outputRow.CreateCell(3, CellType.Numeric)
                          .SetCellValue(quantity);
@@ -58,17 +67,20 @@ namespace COFCO.UTILS.ExcelUtils
             else 
             {
                 outputRow.CreateCell(3, CellType.String)
-                         .SetCellValue(excelInputInfo.Quantity);
+                         .SetCellValue(rowModel.Quantity);
             }
           
             outputRow.CreateCell(4, CellType.String)
-                     .SetCellValue(excelInputInfo.Date);
+                     .SetCellValue(rowModel.Date);
             outputRow.CreateCell(5, CellType.String)
-                     .SetCellValue(excelInputInfo.VehicleNumber);
+                     .SetCellValue(rowModel.VehicleNumber);
             outputRow.CreateCell(6, CellType.String)
-                     .SetCellValue(excelInputInfo.TTNNumber);
+                     .SetCellValue(rowModel.TTNNumber);
             outputRow.CreateCell(7, CellType.String)
-                     .SetCellValue(excelInputInfo.Contract);
+                     .SetCellValue(rowModel.Contract);
+
+            outputRow.CreateCell(ExcelConstants.HIDDEN_ID_COLUMN_INDEX, CellType.Numeric)
+                     .SetCellValue(rowModel.Id);
         }
     }
 }
