@@ -20,21 +20,7 @@ namespace COFCO.Forms
 
         public static List<int> SupplierContractsOutputList;
 
-        #region Error Messages
         
-        private const string ErrorMessage = "Помилка";
-
-        private const string ParamsInputErrorMessage =
-            "Перевірте правильність вводу. Всі колонки повинні бути заповнені та не має бути продубльованих рядків.";
-
-        private const string InputExcelErrorMessage = "Сталась проблема в створенні проміжного Excel файлу. Перевірте вхідний файл та введені дані.";
-
-        private const string InputFileAndDirectoryExistanceErrorMessage = "Вкажіть шлях до вхідного файлу (Файл постачальника) та проміжної папки.";
-
-        private const string TempFileAndDirectoryExistanceErrorMessage = "Вкажіть шлях до файлу з контрактами та вихідної папки.";
-
-        private const string InputFileExistanceErrorMessage = "Вкажіть шлях до вхідного файлу (Файл постачальника).";
-        #endregion
 
         public MainWindow()
         {
@@ -59,14 +45,14 @@ namespace COFCO.Forms
             }
             catch (Exception ex)
             {
-                MessageBox.Show(this, ParamsInputErrorMessage, ErrorMessage);
+                MessageBox.Show(this, Constants.ParamsInputErrorMessage, Constants.ErrorMessage);
                 return;
             }
 
             if (String.IsNullOrEmpty(ExcelInputInfoModel.InputFilePath) ||
                 String.IsNullOrEmpty(ExcelInputInfoModel.OutputTempFolderPath))
             {
-                MessageBox.Show(this, InputFileAndDirectoryExistanceErrorMessage, ErrorMessage);
+                MessageBox.Show(this, Constants.InputFileAndDirectoryExistanceErrorMessage, Constants.ErrorMessage);
                 return;
             }
 
@@ -76,7 +62,8 @@ namespace COFCO.Forms
             }
             catch (Exception ex)
             {
-                MessageBox.Show(this, InputExcelErrorMessage, ErrorMessage);
+                FormsLogger.FormsLoggerInstance.Error(ex);
+                MessageBox.Show(this, Constants.InputExcelErrorMessage, Constants.ErrorMessage);
                 return;
             }
 
@@ -102,14 +89,14 @@ namespace COFCO.Forms
         {
             if (String.IsNullOrEmpty(ExcelInputInfoModel.InputFilePath) )
             {
-                MessageBox.Show(this, InputFileExistanceErrorMessage, ErrorMessage);
+                MessageBox.Show(this, Constants.InputFileExistanceErrorMessage, Constants.ErrorMessage);
                 return;
             }
 
             if (String.IsNullOrEmpty(ExcelInputInfoModel.TempExcelFilePath) ||
                 String.IsNullOrEmpty(ExcelInputInfoModel.OutputTemplateFolderPath))
             {
-                MessageBox.Show(this, TempFileAndDirectoryExistanceErrorMessage, ErrorMessage);
+                MessageBox.Show(this, Constants.TempFileAndDirectoryExistanceErrorMessage, Constants.ErrorMessage);
                 return;
             }
 
@@ -175,6 +162,7 @@ namespace COFCO.Forms
             ContractBL.FeelContractsSummary(SupplierContractsOutputList, _contractsWorksheet);
         }
         #endregion
+
 
 
 
