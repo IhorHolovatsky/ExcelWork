@@ -62,12 +62,12 @@ namespace COFCO.UTILS.ExcelUtils
         /// </summary>
         public static void WriteRowWithHiddenId(ISheet sheet, IRow outputRow, CofcoRowModel rowModel)
         {
-            outputRow.CreateCell(ExcelConstants.HIDDEN_ID_COLUMN_INDEX, CellType.Numeric)
+            WriteRow(outputRow, rowModel);
+
+            outputRow.CreateCell(outputRow.LastCellNum, CellType.Numeric)
                      .SetCellValue(rowModel.Id);
 
-            sheet.SetColumnHidden(ExcelConstants.HIDDEN_ID_COLUMN_INDEX, true);
-
-            WriteRow(outputRow, rowModel);
+            sheet.SetColumnHidden(outputRow.LastCellNum, true);
         }
 
         /// <summary>

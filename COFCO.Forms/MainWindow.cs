@@ -14,6 +14,7 @@ namespace COFCO.Forms
 {
     public partial class MainWindow : Form
     {
+        private ExcelService  _excelService = new ExcelService();
         private Excel.Worksheet _contractsWorksheet;
 
         public static ExcelInputInfo ExcelInputInfoModel = new ExcelInputInfo();
@@ -32,16 +33,16 @@ namespace COFCO.Forms
         {
             try
             {
-                ExcelInputInfoModel.Port = tbPort.Text.ParseToInt().Value + 1;
-                ExcelInputInfoModel.Supplier = tbSupplier.Text.ParseToInt().Value + 1;
-                ExcelInputInfoModel.Product = tbProduct.Text.ParseToInt().Value + 1;
-                ExcelInputInfoModel.Quantity = tbQuantity.Text.ParseToInt().Value + 1;
-                ExcelInputInfoModel.Date = tbDate.Text.ParseToInt().Value + 1;
-                ExcelInputInfoModel.VehicleNumber = tbVehicleNumber.Text.ParseToInt().Value + 1;
-                ExcelInputInfoModel.TTNNumber = tbTTNNumber.Text.ParseToInt().Value + 1;
-                ExcelInputInfoModel.Contract = tbContact.Text.ParseToInt().Value + 1;
-                ExcelInputInfoModel.SheetNumber = tbSheetNumber.Text.ParseToInt().Value + 1;
-                ExcelInputInfoModel.StartRowNumber = tbStartRowNumber.Text.ParseToInt().Value + 1;
+                ExcelInputInfoModel.Port = tbPort.Text.ParseToInt().Value - 1;
+                ExcelInputInfoModel.Supplier = tbSupplier.Text.ParseToInt().Value - 1;
+                ExcelInputInfoModel.Product = tbProduct.Text.ParseToInt().Value - 1;
+                ExcelInputInfoModel.Quantity = tbQuantity.Text.ParseToInt().Value - 1;
+                ExcelInputInfoModel.Date = tbDate.Text.ParseToInt().Value - 1;
+                ExcelInputInfoModel.VehicleNumber = tbVehicleNumber.Text.ParseToInt().Value - 1;
+                ExcelInputInfoModel.TTNNumber = tbTTNNumber.Text.ParseToInt().Value - 1;
+                ExcelInputInfoModel.Contract = tbContact.Text.ParseToInt().Value - 1;
+                ExcelInputInfoModel.SheetNumber = tbSheetNumber.Text.ParseToInt().Value - 1;
+                ExcelInputInfoModel.StartRowNumber = tbStartRowNumber.Text.ParseToInt().Value - 1;
             }
             catch (Exception ex)
             {
@@ -58,7 +59,7 @@ namespace COFCO.Forms
 
             try
             {
-                SupplierContractsOutputList = new ExcelService().CreateTempExcelFile(ExcelInputInfoModel);
+                SupplierContractsOutputList = _excelService.CreateTempExcelFile(ExcelInputInfoModel);
             }
             catch (Exception ex)
             {
@@ -100,6 +101,8 @@ namespace COFCO.Forms
                 return;
             }
 
+            _excelService.FillExcelWithMissedColumns(ExcelInputInfoModel);
+            
 
         }
         #endregion

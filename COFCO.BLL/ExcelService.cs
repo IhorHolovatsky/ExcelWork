@@ -82,11 +82,11 @@ namespace COFCO.BLL
                 for (var rowIndex = excelInputInfo.StartRowNumber; rowIndex <= inputSheet.LastRowNum; rowIndex++)
                 {
                     var inputRow = inputSheet.GetRow(rowIndex);
-
+                    
                     //set hidden Column for ID
-                    inputRow.CreateCell(ExcelConstants.HIDDEN_ID_COLUMN_INDEX, CellType.Numeric)
+                    inputRow.CreateCell(inputRow.LastCellNum + 1, CellType.Numeric)
                             .SetCellValue(rowIndex);
-                    inputSheet.SetColumnHidden(ExcelConstants.HIDDEN_ID_COLUMN_INDEX, true);
+                    inputSheet.SetColumnHidden(inputRow.LastCellNum + 1, true);
 
                     dataList.Add(ExcelRowUtils.CopyRow(inputRow, excelInputInfo));
                 }
@@ -127,7 +127,7 @@ namespace COFCO.BLL
                 //For last supplier
                 CreateSummaryRows(outputSheet, ref i, ref supplierSum, ref totalSumRowIndexes);
 
-                SaveExcel(outputTempExcel, excelInputInfo);
+                SaveExcel(outputTempExcel, excelInputInfo.OutputTempFolderPath);
 
                 inputExcel.Close();
                 outputTempExcel.Close();
@@ -138,7 +138,7 @@ namespace COFCO.BLL
             }
             else
             {
-                
+
             }
 
             return totalSumRowIndexes;
@@ -146,7 +146,7 @@ namespace COFCO.BLL
 
         public XSSFWorkbook FillExcelWithMissedColumns(ExcelInputInfo excelInputInfo)
         {
-            const int LAST_CELL_NUMBER_OF_TEMP_EXCEL = 8;
+            const int LAST_CELL_NUMBER_OF_TEMP_EXCEL = 9;
 
             if (inputExcel == null)
             {
@@ -168,27 +168,36 @@ namespace COFCO.BLL
             for (var i = 1; i <= outputSheet.LastRowNum; i++)
             {
                 var outputRow = outputSheet.GetRow(i);
-                var hiddenId = outputRow.GetCell(ExcelConstants.HIDDEN_ID_COLUMN_INDEX).GetCellValue();
+                var hiddenCell = outputRow.GetCell(outputRow.LastCellNum);
+                var hiddenCellValue = hiddenCell.GetCellValue();
+
+                outputRow.RemoveCell(hiddenCell);
 
                 //Skip summary rows
-                if (string.IsNullOrEmpty(hiddenId))
+                if (string.IsNullOrEmpty(hiddenCellValue))
                 {
                     continue;
                 }
 
-                var missedValues = inputValues.First(node => node.Values.Contains(hiddenId))
+                var missedValues = inputValues.First(node => node.Values.Contains(hiddenCellValue))
                                               .Select(node => node.Value)
                                               .ToList();
 
-                var lastCellNumber = LAST_CELL_NUMBER_OF_TEMP_EXCEL + 1;
+                var lastCellNumber = outputRow.LastCellNum;
                 //Write missedValues
                 //TODO: PUT HIDDEN ID CELL After last cell, because now, hidden id is in cell number 500. And it very bad for perfomance
                 foreach (string value in missedValues)
                 {
-                    outputRow.CreateCell(lastCellNumber)
-                        .SetCellValue(value);
+                    outputRow.CreateCell(lastCellNumber, CellType.String)
+                             .SetCellValue(value);
+                    lastCellNumber ++;
                 }
             }
+
+            SaveExcel(excelWithFilledContacts, excelInputInfo.OutputTemplateFolderPath);
+
+            inputExcel.Close();
+            excelWithFilledContacts.Close();
 
             return excelWithFilledContacts;
         }
@@ -243,11 +252,11 @@ namespace COFCO.BLL
 
         }
 
-        private string SaveExcel(XSSFWorkbook workbook, ExcelInputInfo excelInputInfo)
+        private string SaveExcel(XSSFWorkbook workbook, string filePath)
         {
-            var filePath = Path.Combine(excelInputInfo.OutputTempFolderPath, FileContants.TEMP_EXCEL_FILE_NAME);
+            var filePathWithName = Path.Combine(filePath, FileContants.TEMP_EXCEL_FILE_NAME);
             //Write the stream data of workbook to the root directory
-            var file = new FileStream(filePath, FileMode.Create);
+            var file = new FileStream(filePathWithName, FileMode.Create);
             workbook.Write(file);
             file.Close();
 

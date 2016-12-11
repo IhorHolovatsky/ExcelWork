@@ -32,6 +32,8 @@ namespace COFCO.UTILS.ExcelUtils
                 rowValues = rowValues.Where(node => !string.IsNullOrEmpty(node.Value))
                                      .ToDictionary(node => node.Key, node => node.Value);
 
+                //Remove cell with hidden id's
+                inputRow.RemoveCell(inputRow.GetCell(inputRow.LastCellNum));
 
                 inputValues.Add(rowValues);
             }

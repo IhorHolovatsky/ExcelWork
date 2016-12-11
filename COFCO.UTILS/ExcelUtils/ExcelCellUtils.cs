@@ -11,6 +11,11 @@ namespace COFCO.UTILS.ExcelUtils
     {
         public static string GetCellValue(this ICell cell)
         {
+            if (cell == null)
+            {
+                return String.Empty;
+            }
+
             switch (cell.CellType)
             {
                 case CellType.String:
