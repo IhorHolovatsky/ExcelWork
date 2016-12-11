@@ -21,6 +21,32 @@ namespace COFCO.BLL
         private static XSSFWorkbook inputExcel { get; set; }
 
         /// <summary>
+        ///  Read xlsx file
+        /// </summary>
+        public XSSFWorkbook ReadExcelFile(string filePath)
+        {
+            XSSFWorkbook returnValue;
+
+            try
+            {
+                using (var file = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+                {
+                    returnValue = new XSSFWorkbook(file);
+                }
+            }
+            catch (OfficeXmlFileException e)
+            {
+                throw new Exception("Invalid excel extension");
+            }
+            catch (IOException e)
+            {
+                throw e;
+            }
+
+            return returnValue;
+        }
+
+        /// <summary>
         /// 
         /// </summary>
         /// <param name="excelInputInfo"></param>
@@ -40,27 +66,9 @@ namespace COFCO.BLL
             {
                 #region Logic for XLSX
 
+                inputExcel = ReadExcelFile(excelInputInfo.InputFilePath);
 
-                XSSFWorkbook outputTempExcel;
-
-
-                try
-                {
-                    using (var file = new FileStream(excelInputInfo.InputFilePath, FileMode.Open, FileAccess.Read))
-                    {
-                        inputExcel = new XSSFWorkbook(file);
-                    }
-
-                    outputTempExcel = CreateEmptyTempExcel();
-                }
-                catch (OfficeXmlFileException e)
-                {
-                    throw new Exception("Invalid excel extension");
-                }
-                catch (IOException e)
-                {
-                    throw e;
-                }
+                var outputTempExcel = CreateEmptyTempExcel();
 
                 FillExcelWithHeaders(outputTempExcel);
 
@@ -101,7 +109,9 @@ namespace COFCO.BLL
                     }
 
                     var newRow = outputSheet.CreateRow(i);
-                    ExcelRowUtils.WriteRow(newRow, cofcoData);
+
+                    ExcelRowUtils.WriteRowWithHiddenId(outputSheet, newRow, cofcoData);
+
 
                     var quantity = cofcoData.Quantity.ParseToInt();
                     if (quantity.HasValue)
@@ -127,10 +137,59 @@ namespace COFCO.BLL
             }
             else
             {
-
+                
             }
 
             return totalSumRowIndexes;
+        }
+
+        public XSSFWorkbook FillExcelWithMissedColumns(ExcelInputInfo excelInputInfo)
+        {
+            const int LAST_CELL_NUMBER_OF_TEMP_EXCEL = 8;
+
+            if (inputExcel == null)
+            {
+                if (string.IsNullOrEmpty(excelInputInfo.InputFilePath))
+                {
+                    throw new ArgumentNullException("Missed Input File");
+                }
+
+                inputExcel = ReadExcelFile(excelInputInfo.InputFilePath);
+            }
+            var excelWithFilledContacts = ReadExcelFile(excelInputInfo.TempExcelFilePath);
+
+            var inputSheet = inputExcel.GetSheetAt(excelInputInfo.SheetNumber);
+            var outputSheet = excelWithFilledContacts.GetSheetAt(0);
+
+            var inputValues = ExcelSheetUtils.CopyAllRows(inputSheet, excelInputInfo);
+
+            //i = 1, because first row -> with headers
+            for (var i = 1; i <= outputSheet.LastRowNum; i++)
+            {
+                var outputRow = outputSheet.GetRow(i);
+                var hiddenId = outputRow.GetCell(ExcelConstants.HIDDEN_ID_COLUMN_INDEX).GetCellValue();
+
+                //Skip summary rows
+                if (string.IsNullOrEmpty(hiddenId))
+                {
+                    continue;
+                }
+
+                var missedValues = inputValues.First(node => node.Values.Contains(hiddenId))
+                                              .Select(node => node.Value)
+                                              .ToList();
+
+                var lastCellNumber = LAST_CELL_NUMBER_OF_TEMP_EXCEL + 1;
+                //Write missedValues
+                //TODO: PUT HIDDEN ID CELL After last cell, because now, hidden id is in cell number 500. And it very bad for perfomance
+                foreach (string value in missedValues)
+                {
+                    outputRow.CreateCell(lastCellNumber)
+                        .SetCellValue(value);
+                }
+            }
+
+            return excelWithFilledContacts;
         }
 
         public void SaveTemplatesByDate(ExcelInputInfo excelInputInfo)
@@ -228,7 +287,6 @@ namespace COFCO.BLL
 
             return returnValue;
         }
-
 
         #endregion
     }

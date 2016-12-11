@@ -11,6 +11,10 @@ namespace COFCO.UTILS.ExcelUtils
 {
     public class ExcelRowUtils
     {
+        /// <summary>
+        /// Copy cell data by from inputRow to outputRow
+        /// </summary>
+        /// <param name="columnIndexes">Indexes of columns of input row</param>
         public static void CopyRow(IRow inputRow, IRow outputRow, IEnumerable<int> columnIndexes)
         {
             var i = 0;
@@ -24,6 +28,10 @@ namespace COFCO.UTILS.ExcelUtils
             }
         }
 
+        /// <summary>
+        /// Copy Excel row data to CofcoRowModel
+        /// </summary>
+        /// <returns></returns>
         public static CofcoRowModel CopyRow(IRow inputRow, ExcelInputInfo inputInfo)
         {
             int idValue;
@@ -49,6 +57,24 @@ namespace COFCO.UTILS.ExcelUtils
             return cofcoModel;
         }
 
+        /// <summary>
+        /// Write Excel row with data from rowModel, with additional HiddenCell with Id
+        /// </summary>
+        public static void WriteRowWithHiddenId(ISheet sheet, IRow outputRow, CofcoRowModel rowModel)
+        {
+            outputRow.CreateCell(ExcelConstants.HIDDEN_ID_COLUMN_INDEX, CellType.Numeric)
+                     .SetCellValue(rowModel.Id);
+
+            sheet.SetColumnHidden(ExcelConstants.HIDDEN_ID_COLUMN_INDEX, true);
+
+            WriteRow(outputRow, rowModel);
+        }
+
+        /// <summary>
+        /// Write Excel row with data from rowModel
+        /// </summary>
+        /// <param name="outputRow">destination row</param>
+        /// <param name="rowModel">row data</param>
         public static void WriteRow(IRow outputRow, CofcoRowModel rowModel)
         {
             outputRow.CreateCell(0, CellType.String)
@@ -78,9 +104,6 @@ namespace COFCO.UTILS.ExcelUtils
                      .SetCellValue(rowModel.TTNNumber);
             outputRow.CreateCell(7, CellType.String)
                      .SetCellValue(rowModel.Contract);
-
-            outputRow.CreateCell(ExcelConstants.HIDDEN_ID_COLUMN_INDEX, CellType.Numeric)
-                     .SetCellValue(rowModel.Id);
         }
     }
 }
