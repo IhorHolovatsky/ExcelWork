@@ -66,6 +66,7 @@
   <ItemGroup>
     <Compile Include="ExcelUtils\ExcelCellUtils.cs" />
     <Compile Include="ExcelUtils\ExcelRowUtils.cs" />
+    <Compile Include="ExcelUtils\ExcelSheetUtils.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
