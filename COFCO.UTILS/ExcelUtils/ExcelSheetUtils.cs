@@ -19,6 +19,10 @@ namespace COFCO.UTILS.ExcelUtils
             for (var i = excelInputInfo.StartRowNumber; i <= inputSheet.LastRowNum; i++)
             {
                 var inputRow = inputSheet.GetRow(i);
+
+                if (inputRow == null)
+                    continue;
+
                 var rowValues = new Dictionary<int, string>();
 
                 for (var j = inputRow.FirstCellNum; j <= inputRow.LastCellNum; j++)
@@ -29,12 +33,11 @@ namespace COFCO.UTILS.ExcelUtils
                     }
                 }
 
-                rowValues = rowValues.Where(node => !string.IsNullOrEmpty(node.Value))
-                                     .ToDictionary(node => node.Key, node => node.Value);
+                //rowValues = rowValues.Where(node => !string.IsNullOrEmpty(node.Value))
+                //                     .ToDictionary(node => node.Key, node => node.Value);
 
                 //Remove cell with hidden id's
-                inputRow.RemoveCell(inputRow.GetCell(inputRow.LastCellNum));
-
+                inputRow.RemoveCell(inputRow.GetCell(inputRow.LastCellNum - 1));
                 inputValues.Add(rowValues);
             }
 

@@ -71,7 +71,7 @@ namespace COFCO.BLL
 
                 var outputTempExcel = CreateEmptyTempExcel();
 
-                FillExcelWithHeaders(outputTempExcel);
+                FillExcelWithCustomHeaders(outputTempExcel);
 
                 var inputSheet = inputExcel.GetSheetAt(excelInputInfo.SheetNumber);
                 var outputSheet = outputTempExcel.GetSheetAt(0);
@@ -83,10 +83,13 @@ namespace COFCO.BLL
                 {
                     var inputRow = inputSheet.GetRow(rowIndex);
                     
+                    if (inputRow == null)
+                        continue;
+
                     //set hidden Column for ID
                     inputRow.CreateCell(inputRow.LastCellNum + 1, CellType.Numeric)
-                            .SetCellValue(rowIndex);
-                    inputSheet.SetColumnHidden(inputRow.LastCellNum + 1, true);
+                            .SetCellValue($"{Guid.NewGuid()}|{rowIndex}");
+                    inputSheet.SetColumnHidden(inputRow.LastCellNum, true);
 
                     dataList.Add(ExcelRowUtils.CopyRow(inputRow, excelInputInfo));
                 }
@@ -146,8 +149,6 @@ namespace COFCO.BLL
 
         public XSSFWorkbook FillExcelWithMissedColumns(ExcelInputInfo excelInputInfo)
         {
-            const int LAST_CELL_NUMBER_OF_TEMP_EXCEL = 9;
-
             if (inputExcel == null)
             {
                 if (string.IsNullOrEmpty(excelInputInfo.InputFilePath))
@@ -164,14 +165,18 @@ namespace COFCO.BLL
 
             var inputValues = ExcelSheetUtils.CopyAllRows(inputSheet, excelInputInfo);
 
+            //I Guess that first row is row with headers
+            FillExcelWithHeaders(inputSheet.GetRow(0), outputSheet, inputValues.First()
+                                                                         .Select(node => node.Key)
+                                                                         .ToList());
+
             //i = 1, because first row -> with headers
             for (var i = 1; i <= outputSheet.LastRowNum; i++)
             {
                 var outputRow = outputSheet.GetRow(i);
-                var hiddenCell = outputRow.GetCell(outputRow.LastCellNum);
+                var hiddenCell = outputRow.GetCell(9);
                 var hiddenCellValue = hiddenCell.GetCellValue();
 
-                outputRow.RemoveCell(hiddenCell);
 
                 //Skip summary rows
                 if (string.IsNullOrEmpty(hiddenCellValue))
@@ -179,13 +184,17 @@ namespace COFCO.BLL
                     continue;
                 }
 
+                outputRow.RemoveCell(hiddenCell);
+                outputSheet.SetColumnHidden(9, false);
+
                 var missedValues = inputValues.First(node => node.Values.Contains(hiddenCellValue))
                                               .Select(node => node.Value)
                                               .ToList();
 
-                var lastCellNumber = outputRow.LastCellNum;
-                //Write missedValues
-                //TODO: PUT HIDDEN ID CELL After last cell, because now, hidden id is in cell number 500. And it very bad for perfomance
+                missedValues.Remove(hiddenCellValue);
+
+                var lastCellNumber = 9;
+
                 foreach (string value in missedValues)
                 {
                     outputRow.CreateCell(lastCellNumber, CellType.String)
@@ -223,7 +232,7 @@ namespace COFCO.BLL
             return hssfworkbook;
         }
 
-        private void FillExcelWithHeaders(XSSFWorkbook workbook)
+        private void FillExcelWithCustomHeaders(XSSFWorkbook workbook)
         {
             var outputSheet = workbook.GetSheetAt(0);
             var outputHeaderRow = outputSheet.CreateRow(0);
@@ -250,6 +259,18 @@ namespace COFCO.BLL
                 outputSheet.SetColumnWidth(i, 6000);
             }
 
+        }
+
+        private void FillExcelWithHeaders(IRow inputHeaderRow, ISheet outputSheet, List<int> columnIndexes)
+        {
+            var outputHeaderRow = outputSheet.GetRow(0);
+            
+            foreach (var columnIndex in columnIndexes)
+            {
+                outputHeaderRow.CreateCell(outputHeaderRow.LastCellNum)
+                               .SetCellValue(inputHeaderRow.GetCell(columnIndex)
+                                                           .GetCellValue());
+            }
         }
 
         private string SaveExcel(XSSFWorkbook workbook, string filePath)
@@ -281,21 +302,6 @@ namespace COFCO.BLL
             rowNumber++;
 
             totalSumRowIndexes.Add(rowNumber);
-        }
-
-        private List<IRow> GetPrimaryInputRows(XSSFWorkbook inputExcel, ExcelInputInfo excelInputInfo)
-        {
-            var returnValue = new List<IRow>();
-
-            var sheet = inputExcel.GetSheetAt(excelInputInfo.SheetNumber);
-
-            for (var i = excelInputInfo.StartRowNumber; i < sheet.LastRowNum; i++)
-            {
-                returnValue.Add(sheet.GetRow(i));
-            }
-
-
-            return returnValue;
         }
 
         #endregion

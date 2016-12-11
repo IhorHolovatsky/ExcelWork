@@ -34,8 +34,8 @@ namespace COFCO.UTILS.ExcelUtils
         /// <returns></returns>
         public static CofcoRowModel CopyRow(IRow inputRow, ExcelInputInfo inputInfo)
         {
-            int idValue;
-            var idColumnValue = inputRow.GetCell(ExcelConstants.HIDDEN_ID_COLUMN_INDEX).GetCellValue();
+            // -1 because, we start from 0
+            var idColumnValue = inputRow.GetCell(inputRow.LastCellNum - 1).GetCellValue();
             
             var cofcoModel = new CofcoRowModel
             {
@@ -48,12 +48,8 @@ namespace COFCO.UTILS.ExcelUtils
                 TTNNumber = inputRow.GetCell(inputInfo.TTNNumber).GetCellValue(),
                 Contract = inputRow.GetCell(inputInfo.Contract).GetCellValue()
             };
-
-            if (int.TryParse(idColumnValue, out idValue))
-            {
-                cofcoModel.Id = idValue;
-            }
-
+            cofcoModel.Id = idColumnValue;
+            
             return cofcoModel;
         }
 
@@ -64,10 +60,10 @@ namespace COFCO.UTILS.ExcelUtils
         {
             WriteRow(outputRow, rowModel);
 
-            outputRow.CreateCell(outputRow.LastCellNum, CellType.Numeric)
+            outputRow.CreateCell(9, CellType.Numeric)
                      .SetCellValue(rowModel.Id);
 
-            sheet.SetColumnHidden(outputRow.LastCellNum, true);
+            sheet.SetColumnHidden(9, true);
         }
 
         /// <summary>
