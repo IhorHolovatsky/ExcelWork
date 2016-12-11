@@ -19,6 +19,7 @@ namespace COFCO.BLL
     public class ExcelService
     {
         private static XSSFWorkbook inputExcel { get; set; }
+        private List<int> _totalSumRowIndexes;
 
         /// <summary>
         ///  Read xlsx file
@@ -127,6 +128,8 @@ namespace COFCO.BLL
                     i++;
                 }
 
+                _totalSumRowIndexes = totalSumRowIndexes;
+
                 //For last supplier
                 CreateSummaryRows(outputSheet, ref i, ref supplierSum, ref totalSumRowIndexes);
 
@@ -144,6 +147,7 @@ namespace COFCO.BLL
 
             }
 
+            
             return totalSumRowIndexes;
         }
 
@@ -203,7 +207,9 @@ namespace COFCO.BLL
                 }
             }
 
-            SaveExcel(excelWithFilledContacts, excelInputInfo.OutputTemplateFolderPath);
+            //SaveExcel(excelWithFilledContacts, excelInputInfo.OutputTemplateFolderPath);
+            SaveTemplatesByDate(excelInputInfo ,excelWithFilledContacts);
+            SaveTemplatesBySupplier(excelInputInfo, excelWithFilledContacts);
 
             inputExcel.Close();
             excelWithFilledContacts.Close();
@@ -211,14 +217,79 @@ namespace COFCO.BLL
             return excelWithFilledContacts;
         }
 
-        public void SaveTemplatesByDate(ExcelInputInfo excelInputInfo)
+        public void SaveTemplatesByDate(ExcelInputInfo excelInputInfo, XSSFWorkbook workbook)
         {
+            var currentDate = DateTime.Today;
+
+            var currentDateFolderName = currentDate.Day + "." + currentDate.Month + "." + currentDate.Year;
+            
+            var pathWithDate = Path.Combine(excelInputInfo.OutputTemplateFolderPath, "ByDate",
+               currentDateFolderName);
+
+            SaveExcelTemplateByDate(workbook, pathWithDate);
 
         }
 
-        public void SaveTemplatesBySupplier(ExcelInputInfo excelInputInfo)
+        public void SaveTemplatesBySupplier(ExcelInputInfo excelInputInfo, XSSFWorkbook workbook)
         {
+            var inputWorksheet = workbook.GetSheetAt(0);
+            var headersRow = inputWorksheet.GetRow(0);
+            
+            var lastIterationNumber = 0;
 
+            var inputRowIterationNumber = 1;
+
+            foreach (var totalSumRowIndex in _totalSumRowIndexes)
+            {
+                
+                var templateWorkbook = new XSSFWorkbook();
+
+                templateWorkbook.CreateSheet("Звіт");
+
+                var outputSheet = templateWorkbook.GetSheetAt(0);
+                var outputHeaderRow = outputSheet.CreateRow(0);
+                
+
+                for (int i = 2; i < headersRow.LastCellNum; i++)
+                {
+                    outputHeaderRow.CreateCell(i-2, CellType.String)
+                     .SetCellValue(headersRow.GetCell(i).StringCellValue);
+                }
+
+
+
+                var rowIndex = 1;
+                for (int j = lastIterationNumber + 1; j <= totalSumRowIndex-1; j++)
+                {
+                    var currentRow = outputSheet.CreateRow(rowIndex);
+                    var inputRow = inputWorksheet.GetRow(inputRowIterationNumber);
+                    rowIndex++;
+                    inputRowIterationNumber++;
+                    
+                    if (totalSumRowIndex - j <= 1)
+                    {
+                        for (int i = 0; i < headersRow.LastCellNum; i++)
+                        {
+                            currentRow.CreateCell(i, CellType.String)
+                                .SetCellValue(inputRow.GetCell(i).GetCellValue());
+                        }
+                    }
+                    else
+                    {
+                        for (int i = 2; i < headersRow.LastCellNum; i++)
+                        {
+                            currentRow.CreateCell(i - 2, CellType.String)
+                                .SetCellValue(inputRow.GetCell(i).GetCellValue());
+                        }
+                    }
+
+                    
+                }
+
+                SaveExcelTemplateBySupplier(templateWorkbook, excelInputInfo.OutputTemplateFolderPath);
+
+                lastIterationNumber = totalSumRowIndex;
+            }
         }
 
         #region private methods
@@ -281,7 +352,31 @@ namespace COFCO.BLL
             workbook.Write(file);
             file.Close();
 
-            return filePath; ;
+            return filePath; 
+        }
+
+        private string SaveExcelTemplateByDate(XSSFWorkbook workbook,string filePath)
+        {
+            Directory.CreateDirectory(filePath);
+
+            var filePathWithName = Path.Combine(filePath, FileContants.TEMPLATE_EXCEL_FILE_NAME);
+            //Write the stream data of workbook to the root directory
+            var file = new FileStream(filePathWithName, FileMode.Create);
+            workbook.Write(file);
+            file.Close();
+
+            return filePath; 
+        }
+
+        private string SaveExcelTemplateBySupplier(XSSFWorkbook workbook, string filePath)
+        {
+            var filePathWithName = Path.Combine(filePath, "ContractTempTEST.xlsx");
+            //Write the stream data of workbook to the root directory
+            var file = new FileStream(filePathWithName, FileMode.Create);
+            workbook.Write(file);
+            file.Close();
+
+            return filePath;
         }
 
         private void CreateSummaryRows(ISheet outputSheet, ref int rowNumber, ref int supplierSum, ref List<int> totalSumRowIndexes)

@@ -12,5 +12,6 @@ namespace COFCO.SharedEntities.Constants
         public const string XLS = ".xls";
 
         public const string TEMP_EXCEL_FILE_NAME = "ContractTemp.xlsx";
+        public const string TEMPLATE_EXCEL_FILE_NAME = "Template.xlsx";
     }
 }

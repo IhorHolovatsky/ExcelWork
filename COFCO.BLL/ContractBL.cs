@@ -1,15 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Excel = Microsoft.Office.Interop.Excel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using COFCO.SharedEntities.Models;
+using NLog;
 using NPOI.OpenXmlFormats.Spreadsheet;
 
 namespace COFCO.BLL
 {
     public static class ContractBL
     {
+
+        static List<TimeSpan> elList = new List<TimeSpan>();
+
         /// <summary>
         /// Feels summary in contarct excell
         /// </summary>
@@ -18,6 +24,11 @@ namespace COFCO.BLL
         public static void FeelContractsSummary(List<int> supplierContractsOutputList, Excel.Worksheet contractsWorksheet)
         {
             int lastIterationRowNumber = 1;
+            
+            
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+          
 
             foreach (var supplierRowNumber in supplierContractsOutputList)
             {
@@ -62,6 +73,15 @@ namespace COFCO.BLL
 
 
             }
+            stopwatch.Stop();
+            elList.Add(stopwatch.Elapsed);
+
+            var counter = 0;
+            foreach (var timeSpan in elList)
+            {
+                counter += timeSpan.Milliseconds;
+            }
+            var sr = counter/elList.Count;
         }
 
         public static string GetRowAdressByRange(Excel.Range range)

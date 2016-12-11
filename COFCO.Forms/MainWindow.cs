@@ -14,15 +14,14 @@ namespace COFCO.Forms
 {
     public partial class MainWindow : Form
     {
-        private ExcelService  _excelService = new ExcelService();
+        private readonly ExcelService  _excelService = new ExcelService();
         private Excel.Worksheet _contractsWorksheet;
+        private Excel.Application _excelapp;
 
         public static ExcelInputInfo ExcelInputInfoModel = new ExcelInputInfo();
 
         public static List<int> SupplierContractsOutputList;
-
         
-
         public MainWindow()
         {
             InitializeComponent();
@@ -68,12 +67,12 @@ namespace COFCO.Forms
                 return;
             }
 
-            var excelapp = new Excel.Application
+            _excelapp = new Excel.Application
             {
                 Visible = true
             };
 
-            var excelappworkbook = excelapp.Workbooks.Open(Path.Combine(ExcelInputInfoModel.OutputTempFolderPath,FileContants.TEMP_EXCEL_FILE_NAME),
+            var excelappworkbook = _excelapp.Workbooks.Open(Path.Combine(ExcelInputInfoModel.OutputTempFolderPath,FileContants.TEMP_EXCEL_FILE_NAME),
               Type.Missing, Type.Missing, Type.Missing, Type.Missing,
               Type.Missing, Type.Missing, Type.Missing, Type.Missing,
               Type.Missing, Type.Missing, Type.Missing, Type.Missing,
@@ -103,7 +102,6 @@ namespace COFCO.Forms
 
             _excelService.FillExcelWithMissedColumns(ExcelInputInfoModel);
             
-
         }
         #endregion
 
@@ -154,7 +152,6 @@ namespace COFCO.Forms
         #region Excel Event Handlers
         private void ExcelworksheetOnChange(Excel.Range target)
         {
-
             var targetRowAdress = Convert.ToInt32(ContractBL.GetRowAdressByRange(target));
 
             if (SupplierContractsOutputList.Contains(targetRowAdress))
@@ -163,6 +160,7 @@ namespace COFCO.Forms
             }
 
             ContractBL.FeelContractsSummary(SupplierContractsOutputList, _contractsWorksheet);
+
         }
         #endregion
 
