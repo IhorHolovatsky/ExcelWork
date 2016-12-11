@@ -14,9 +14,27 @@ namespace COFCO.Forms
 {
     public partial class MainWindow : Form
     {
+        private Excel.Worksheet _contractsWorksheet;
+
         public static ExcelInputInfo ExcelInputInfoModel = new ExcelInputInfo();
 
         public static List<int> SupplierContractsOutputList;
+
+        #region Error Messages
+        
+        private const string ErrorMessage = "Помилка";
+
+        private const string ParamsInputErrorMessage =
+            "Перевірте правильність вводу. Всі колонки повинні бути заповнені та не має бути продубльованих рядків.";
+
+        private const string InputExcelErrorMessage = "Сталась проблема в створенні проміжного Excel файлу. Перевірте вхідний файл та введені дані.";
+
+        private const string InputFileAndDirectoryExistanceErrorMessage = "Вкажіть шлях до вхідного файлу (Файл постачальника) та проміжної папки.";
+
+        private const string TempFileAndDirectoryExistanceErrorMessage = "Вкажіть шлях до файлу з контрактами та вихідної папки.";
+
+        private const string InputFileExistanceErrorMessage = "Вкажіть шлях до вхідного файлу (Файл постачальника).";
+        #endregion
 
         public MainWindow()
         {
@@ -26,7 +44,6 @@ namespace COFCO.Forms
         #region Buttons
         private void btnCreateTempExcel_Click(object sender, System.EventArgs e)
         {
-            //ToDo: validation
             try
             {
                 ExcelInputInfoModel.Port = tbPort.Text.ParseToInt().Value + 1;
@@ -42,12 +59,27 @@ namespace COFCO.Forms
             }
             catch (Exception ex)
             {
-                ShowMessageBoxWithError();
+                MessageBox.Show(this, ParamsInputErrorMessage, ErrorMessage);
                 return;
             }
 
-            SupplierContractsOutputList = new ExcelService().CreateTempExcelFile(ExcelInputInfoModel);
-          
+            if (String.IsNullOrEmpty(ExcelInputInfoModel.InputFilePath) ||
+                String.IsNullOrEmpty(ExcelInputInfoModel.OutputTempFolderPath))
+            {
+                MessageBox.Show(this, InputFileAndDirectoryExistanceErrorMessage, ErrorMessage);
+                return;
+            }
+
+            try
+            {
+                SupplierContractsOutputList = new ExcelService().CreateTempExcelFile(ExcelInputInfoModel);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(this, InputExcelErrorMessage, ErrorMessage);
+                return;
+            }
+
             var excelapp = new Excel.Application
             {
                 Visible = true
@@ -60,65 +92,27 @@ namespace COFCO.Forms
               Type.Missing, Type.Missing);
 
             var excelsheets = excelappworkbook.Worksheets;
-            var excelworksheet = (Excel.Worksheet)excelsheets.Item[1];
+            _contractsWorksheet = (Excel.Worksheet)excelsheets.Item[1];
 
-            excelworksheet.Change += target =>
-            {
-                int targetRowAdress = Convert.ToInt32(GetRowAdressByRange(target));
-
-                if (SupplierContractsOutputList.Contains(targetRowAdress))
-                {
-                    return;
-                }
-                
-                int lastIterationRowNumber = 1;
-
-                foreach (var supplierRowNumber in SupplierContractsOutputList)
-                {
-                    var contractsDictionary = new Dictionary<string,double>();
-
-                    for (int i = lastIterationRowNumber + 1; i < supplierRowNumber - 1; i++)
-                    {
-                        var contractCell = excelworksheet.Cells[i, 9];
-                        var contractRange = excelworksheet.Range[contractCell, contractCell];
-                        var contractValue = contractRange.Value2?.ToString();
-
-                        var quantityCell = excelworksheet.Cells[i, 4];
-                        var quantityRange = excelworksheet.Range[quantityCell, quantityCell];
-                        var quantityValue = Convert.ToDouble(quantityRange.Value2);
-
-                        if (contractValue != null)
-                        {
-                            if (contractsDictionary.ContainsKey(contractValue))
-                            {
-                                contractsDictionary[contractValue] = contractsDictionary[contractValue] + quantityValue;
-                            }
-                            else
-                            {
-                                contractsDictionary.Add(contractValue, quantityValue);
-                            }
-                        }
-                    }
-
-                    var outputString = String.Empty;
-
-                    foreach (var item in contractsDictionary)
-                    {
-                        outputString += item.Key + " контракт : " + item.Value + ". ";
-                    }
-
-                    var outputAdress = "B" + supplierRowNumber;
-                    var outputRange = excelworksheet.Range[outputAdress, outputAdress];
-                    outputRange.Value2 = outputString;
-
-                    lastIterationRowNumber = supplierRowNumber;
-                }
-
-            };
+            _contractsWorksheet.Change += ExcelworksheetOnChange;
+            
         }
-
+        
         private void btnCreateTemplates_Click(object sender, System.EventArgs e)
         {
+            if (String.IsNullOrEmpty(ExcelInputInfoModel.InputFilePath) )
+            {
+                MessageBox.Show(this, InputFileExistanceErrorMessage, ErrorMessage);
+                return;
+            }
+
+            if (String.IsNullOrEmpty(ExcelInputInfoModel.TempExcelFilePath) ||
+                String.IsNullOrEmpty(ExcelInputInfoModel.OutputTemplateFolderPath))
+            {
+                MessageBox.Show(this, TempFileAndDirectoryExistanceErrorMessage, ErrorMessage);
+                return;
+            }
+
 
         }
         #endregion
@@ -133,10 +127,6 @@ namespace COFCO.Forms
             {
                 ExcelInputInfoModel.InputFilePath = inputFilePath;
             }
-            else
-            {
-                //ToDo
-            }
         }
 
         private void btnChooseOutputTempFolder_Click(object sender, System.EventArgs e)
@@ -147,10 +137,6 @@ namespace COFCO.Forms
             {
                 ExcelInputInfoModel.OutputTempFolderPath = filePath;
             }
-            else
-            {
-                //ToDo
-            }
         }
 
         private void btnChooseExcelFile_Click(object sender, System.EventArgs e)
@@ -160,10 +146,6 @@ namespace COFCO.Forms
             if (!string.IsNullOrEmpty(filePath))
             {
                 ExcelInputInfoModel.TempExcelFilePath = filePath;
-            }
-            else
-            {
-                //ToDo
             }
 
         }
@@ -176,34 +158,25 @@ namespace COFCO.Forms
             {
                 ExcelInputInfoModel.OutputTemplateFolderPath = filePath;
             }
-            else
-            {
-                //ToDo
-            }
         }
         #endregion
 
-        private void ShowMessageBoxWithError()
+        #region Excel Event Handlers
+        private void ExcelworksheetOnChange(Excel.Range target)
         {
-            MessageBox.Show(this, "Перевірте правильність вводу. Всі колонки повинні бути заповнені та не має бути продубльованих рядків.");
-        }
 
-        private string GetRowAdressByRange(Excel.Range range)
-        {
-            var rangeAdress = range.Address;
+            var targetRowAdress = Convert.ToInt32(ContractBL.GetRowAdressByRange(target));
 
-            var adress = String.Empty;
-
-            foreach (var chr in rangeAdress)
+            if (SupplierContractsOutputList.Contains(targetRowAdress))
             {
-                if (Char.IsDigit(chr))
-                {
-                    adress += chr;
-                }
+                return;
             }
 
-            return adress;
+            ContractBL.FeelContractsSummary(SupplierContractsOutputList, _contractsWorksheet);
         }
+        #endregion
+
+
 
     }
 }

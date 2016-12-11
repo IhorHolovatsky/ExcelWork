@@ -466,7 +466,7 @@
             this.Controls.Add(this.lblSheetNumber);
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "MainWindow";
-            this.Text = "Form1";
+            this.Text = "ZeoExcel";
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             this.groupBox1.ResumeLayout(false);

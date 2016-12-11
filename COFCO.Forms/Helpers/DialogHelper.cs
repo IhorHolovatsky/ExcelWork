@@ -18,7 +18,9 @@ namespace COFCO.Forms.Helpers
         /// <param name="textBox">textbox to which will be written file path</param>
         internal static string OpenChooseFileDialog(TextBox textBox)
         {
-            var dialogResult = _fileDialog.ShowDialog();
+            var dialog = _fileDialog;
+            dialog.Filter = "Excel Files|*.xls;*.xlsx;*.xlsm";
+            var dialogResult = dialog.ShowDialog();
 
             switch (dialogResult)
             {
